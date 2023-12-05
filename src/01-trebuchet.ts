@@ -23,5 +23,20 @@ import { extractInput } from "./util/extract-input";
 * 
 * Consider your entire calibration document. What is the sum of all of the calibration values?
  */
+export function trebuchet(calibration: string[]): number {
+  const digitsForCoordinates = calibration.map((c) =>
+    [...c.matchAll(/\d/g)].map(([digit]) => digit)
+  );
+
+  const coordinates = digitsForCoordinates.map((digits) => {
+    const { 0: first, length: l, [l - 1]: last } = digits;
+    return +(first + last) || 0;
+  });
+
+  return coordinates.reduce<number>((sum, el) => sum + el, 0);
+}
 
 export const input = extractInput("01-input.txt");
+const result = trebuchet(input);
+
+console.log("01 *\tTrebuchet? \n\tResult =>", result);
