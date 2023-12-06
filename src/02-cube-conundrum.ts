@@ -36,7 +36,7 @@ export function cubeConundrum(records: string[]): number {
     blue: 14,
   };
 
-  const splittedGames = records
+  const games = records
     .map((record: string): string[] => record.split(":"))
     .map(([rawId, rawPlays]): [string, Array<[string, number][]>] => {
       const id = rawId.split(" ")[1];
@@ -52,7 +52,7 @@ export function cubeConundrum(records: string[]): number {
       return [id, plays];
     });
 
-  const possibleGamesIDs: number[] = splittedGames
+  const possibleGamesIDs: number[] = games
     .filter(([_id, plays]) => {
       return !plays.some((play) =>
         play.some(([color, quantity]) => quantity > maxNumberOfBoxes[color])
