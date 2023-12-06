@@ -26,12 +26,44 @@ import { extractInput } from "./util/extract-input";
  * In the example above, games 1, 2, and 5 would have been possible if the bag had been loaded with that configuration. However, game 3 would have been impossible because at one point the Elf showed you 20 red cubes at once; similarly, game 4 would also have been impossible because the Elf showed you 15 blue cubes at once. If you add up the IDs of the games that would have been possible, you get 8.
  *
  * Determine which games would have been possible if the bag had been loaded with only 12 red cubes, 13 green cubes, and 14 blue cubes. What is the sum of the IDs of those games?
+ * Your puzzle answer was 2771.
  */
 
 export function cubeConundrum(records: string[]): number {
-  return 8;
+  const maxNumberOfBoxes: Record<string, number> = {
+    red: 12,
+    green: 13,
+    blue: 14,
+  };
+
+  const splittedGames = records
+    .map((record: string): string[] => record.split(":"))
+    .map(([rawId, rawPlays]): [string, Array<[string, number][]>] => {
+      const id = rawId.split(" ")[1];
+      const plays = rawPlays
+        .split(";")
+        .map((plays: string) => plays.split(","))
+        .map((plays: string[]) =>
+          plays
+            .map((play) => play.split(" "))
+            .map(([_, quantity, color]): [string, number] => [color, +quantity])
+        );
+
+      return [id, plays];
+    });
+
+  const possibleGamesIDs: number[] = splittedGames
+    .filter(([_id, plays]) => {
+      return !plays.some((play) =>
+        play.some(([color, quantity]) => quantity > maxNumberOfBoxes[color])
+      );
+    })
+    .map(([id]) => +id);
+
+  return possibleGamesIDs.reduce((sum, num) => sum + num, 0);
 }
 
 export const input = extractInput("02-input.txt");
+const result = cubeConundrum(input);
 
-console.log("input", input);
+console.log("02 *\tCube Conundrum \n\tResult =>", result);

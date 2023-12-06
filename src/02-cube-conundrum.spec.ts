@@ -16,7 +16,7 @@ describe("02. Cube Conundrum", () => {
     });
 
     it("should return sum of all ID's according with given large input", () => {
-      const expected = null;
+      const expected = 2771;
       const result = cubeConundrum(input);
 
       expect(result).toBe(expected);
