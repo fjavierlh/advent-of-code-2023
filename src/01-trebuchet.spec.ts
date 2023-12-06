@@ -30,7 +30,7 @@ describe("01. Trebuchet?", () => {
   });
 
   it("should return correct result for all given cases of sample input", () => {
-    const expected = 53334;
+    const expected = 52834;
     const result = trebuchet(input);
 
     expect(result).toBe(expected);

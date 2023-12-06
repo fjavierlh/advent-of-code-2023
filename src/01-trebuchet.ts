@@ -22,18 +22,63 @@ import { extractInput } from "./util/extract-input";
 * In this example, the calibration values of these four lines are 12, 38, 15, and 77. Adding these together produces 142.
 * 
 * Consider your entire calibration document. What is the sum of all of the calibration values?
- */
-export function trebuchet(calibration: string[]): number {
-  const digitsForCoordinates = calibration.map((c) =>
-    [...c.matchAll(/\d/g)].map(([digit]) => digit)
+* 
+* Your puzzle answer was 53334.
+* --- Part Two ---
+* Your calculation isn't quite right. It looks like some of the digits are actually spelled out with letters: one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
+* 
+* Equipped with this new information, you now need to find the real first and last digit on each line. For example:
+* 
+* two1nine
+* eightwothree
+* abcone2threexyz
+* xtwone3four
+* 4nineeightseven2
+* zoneight234
+* 7pqrstsixteen
+* In this example, the calibration values are 29, 83, 13, 24, 42, 14, and 76. Adding these together produces 281.
+* 
+* What is the sum of all of the calibration values?
+* 
+* Your puzzle answer was 52834.
+*/
+
+const numbersDictionary: Record<string, string> = {
+  one: "1",
+  two: "2",
+  three: "3",
+  four: "4",
+  five: "5",
+  six: "6",
+  seven: "7",
+  eight: "8",
+  nine: "9",
+};
+
+function matchCalibrationDigits(c: string): string[] {
+  const matcher = new RegExp(
+    `(\\d{1})|(${Object.keys(numbersDictionary).join("|")})`,
+    "gi"
   );
 
-  const coordinates = digitsForCoordinates.map((digits) => {
-    const { 0: first, length: l, [l - 1]: last } = digits;
-    return +(first + last) || 0;
-  });
+  return [...c.matchAll(matcher)].map(
+    ([digit]) => numbersDictionary[digit] || digit
+  );
+}
 
-  return coordinates.reduce<number>((sum, el) => sum + el, 0);
+function extractCalibrationValue(digits: string[]) {
+  return +(digits[0] + digits[digits.length - 1]) || 0;
+}
+
+function sum(sum: number, el: number) {
+  return sum + el;
+}
+
+export function trebuchet(calibrationDocument: string[]): number {
+  return calibrationDocument
+    .map(matchCalibrationDigits)
+    .map(extractCalibrationValue)
+    .reduce(sum, 0);
 }
 
 export const input = extractInput("01-input.txt");
