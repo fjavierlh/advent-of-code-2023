@@ -30,7 +30,7 @@ import { extractInput } from "./util/extract-input";
  */
 
 export function cubeConundrum(records: string[]): number {
-  const maxNumberOfBoxes: Record<string, number> = {
+  const maxBoxesByColor: Record<string, number> = {
     red: 12,
     green: 13,
     blue: 14,
@@ -55,7 +55,7 @@ export function cubeConundrum(records: string[]): number {
   const possibleGamesIDs: number[] = games
     .filter(([_id, plays]) => {
       return !plays.some((play) =>
-        play.some(([color, quantity]) => quantity > maxNumberOfBoxes[color])
+        play.some(([color, quantity]) => quantity > maxBoxesByColor[color])
       );
     })
     .map(([id]) => +id);
