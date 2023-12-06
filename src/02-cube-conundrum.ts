@@ -36,6 +36,12 @@ export function cubeConundrum(records: string[]): number {
     blue: 14,
   };
 
+  function isPossibleGame([_id, plays]: [string, Array<[string, number][]>]) {
+    return !plays.some((play) =>
+      play.some(([color, quantity]) => quantity > maxBoxesByColor[color])
+    );
+  }
+
   const games = records
     .map((record: string): string[] => record.split(":"))
     .map(([rawId, rawPlays]): [string, Array<[string, number][]>] => {
@@ -53,11 +59,7 @@ export function cubeConundrum(records: string[]): number {
     });
 
   const possibleGamesIDs: number[] = games
-    .filter(([_id, plays]) => {
-      return !plays.some((play) =>
-        play.some(([color, quantity]) => quantity > maxBoxesByColor[color])
-      );
-    })
+    .filter(isPossibleGame)
     .map(([id]) => +id);
 
   return possibleGamesIDs.reduce((sum, num) => sum + num, 0);
