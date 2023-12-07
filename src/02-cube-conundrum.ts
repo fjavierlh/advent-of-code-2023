@@ -50,8 +50,8 @@ import { extractInput } from "./util/extract-input";
  * For each game, find the minimum set of cubes that must have been present. What is the sum of the power of these sets?
  * Your puzzle answer was 70924.
  */
-type BoxColor = "red" | "green" | "blue";
-type Play = Array<[BoxColor, number]>;
+type CubeColor = "red" | "green" | "blue";
+type Play = Array<[CubeColor, number]>;
 type Game = [number, Array<Play>];
 
 function recordToGame(record: string): Game {
@@ -64,8 +64,8 @@ function recordToGame(record: string): Game {
     .map((plays: string[]) =>
       plays
         .map((play) => play.split(" "))
-        .map(([_, quantity, color]): [BoxColor, number] => [
-          color as BoxColor,
+        .map(([_, quantity, color]): [CubeColor, number] => [
+          color as CubeColor,
           +quantity,
         ])
     );
@@ -73,11 +73,11 @@ function recordToGame(record: string): Game {
   return [id, plays];
 }
 
-function getFewerNumberOfBoxesByColor([_, plays]: Game): Record<
-  BoxColor,
+function getFewerNumberOfCubesByColor([_, plays]: Game): Record<
+  CubeColor,
   number
 > {
-  const fewerNumberOfBoxesByColor = {
+  const fewerNumberOfCubesByColor = {
     red: 1,
     green: 1,
     blue: 1,
@@ -89,10 +89,14 @@ function getFewerNumberOfBoxesByColor([_, plays]: Game): Record<
     }
 
     return acc;
-  }, fewerNumberOfBoxesByColor);
+  }, fewerNumberOfCubesByColor);
 }
 
-function getPower({ green, red, blue }: Record<BoxColor, number>): number {
+function getPowerOfCubeSet({
+  green,
+  red,
+  blue,
+}: Record<CubeColor, number>): number {
   return red * green * blue;
 }
 
@@ -103,8 +107,8 @@ function sum(sum: number, num: number) {
 export function cubeConundrum(records: string[]): number {
   return records
     .map(recordToGame)
-    .map(getFewerNumberOfBoxesByColor)
-    .map(getPower)
+    .map(getFewerNumberOfCubesByColor)
+    .map(getPowerOfCubeSet)
     .reduce(sum);
 }
 
