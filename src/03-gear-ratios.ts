@@ -31,8 +31,64 @@ import { extractInput } from "./util/extract-input";
  * Of course, the actual engine schematic is much larger. What is the sum of all of the part numbers in the engine schematic?
  */
 
-export function gearRatios(params: string[]): number {
-  return 0;
+export function gearRatios(engine: string[]): number {
+  const digitsMatcher = /\d{1,}/gi;
+  const symbolsMatcher = /[^\.\d]/gi;
+
+  const matchedDigits = engine.map((i) => [...i.matchAll(digitsMatcher)]);
+  const matchedSymbols = engine.map((i) => [...i.matchAll(symbolsMatcher)]);
+
+  const numbersAdjacentToSymbol = matchedDigits.reduce<string[]>(
+    (acc, foundDigits, matchedDigitsIndex) => {
+      if (foundDigits.length === 0) return acc;
+
+      for (const { 0: digit, index: digitIndex, input } of foundDigits) {
+        const [prevChar, nextChar] = [
+          input[digitIndex - 1],
+          input[digitIndex + digit.length],
+        ];
+
+        const hasHorizonzalAdjacentSymbol = [prevChar, nextChar].some((char) =>
+          char?.match(symbolsMatcher)
+        );
+
+        if (hasHorizonzalAdjacentSymbol) {
+          acc.push(digit);
+        }
+
+        const [prevLineSymbols = [], nextLineSymbols = []] = [
+          matchedSymbols[matchedDigitsIndex - 1],
+          matchedSymbols[matchedDigitsIndex + 1],
+        ];
+
+        const hasVerticalAdjacentSymbol = [
+          prevLineSymbols,
+          nextLineSymbols,
+        ].some((symbols) => {
+          if (symbols.length === 0) return false;
+
+          for (const { index: symbolIndex } of symbols) {
+            const symbolIndexIsInDigitIndexRange =
+              symbolIndex >= digitIndex - 1 &&
+              symbolIndex <= digitIndex + digit.length + 1;
+
+            if (symbolIndexIsInDigitIndexRange) return true;
+          }
+
+          return false;
+        });
+
+        if (hasVerticalAdjacentSymbol) {
+          acc.push(digit);
+        }
+      }
+
+      return acc;
+    },
+    []
+  );
+
+  return numbersAdjacentToSymbol.reduce((sum, num) => sum + +num, 0);
 }
 
 export const input = extractInput("03-input.txt");
