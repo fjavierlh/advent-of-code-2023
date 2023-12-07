@@ -3,7 +3,7 @@ import { cubeConundrum, input } from "./02-cube-conundrum";
 describe("02. Cube Conundrum", () => {
   {
     it("should return sum of all ID's according with given small input", () => {
-      const expected = 8;
+      const expected = 2286;
       const result = cubeConundrum([
         "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
         "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue",
@@ -16,11 +16,10 @@ describe("02. Cube Conundrum", () => {
     });
 
     it("should return sum of all ID's according with given large input", () => {
-      const expected = 2771;
+      const expected = 70924;
       const result = cubeConundrum(input);
 
       expect(result).toBe(expected);
     });
   }
 });
-input;

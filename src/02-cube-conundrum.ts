@@ -48,16 +48,11 @@ import { extractInput } from "./util/extract-input";
  * The power of a set of cubes is equal to the numbers of red, green, and blue cubes multiplied together. The power of the minimum set of cubes in game 1 is 48. In games 2-5 it was 12, 1560, 630, and 36, respectively. Adding up these five powers produces the sum 2286.
  *
  * For each game, find the minimum set of cubes that must have been present. What is the sum of the power of these sets?
+ * Your puzzle answer was 70924.
  */
 type BoxColor = "red" | "green" | "blue";
 type Play = Array<[BoxColor, number]>;
 type Game = [number, Array<Play>];
-
-const maxBoxesLimitByColor: Record<BoxColor, number> = {
-  red: 12,
-  green: 13,
-  blue: 14,
-};
 
 function recordToGame(record: string): Game {
   const [rawId, rawPlays] = record.split(":");
@@ -78,18 +73,39 @@ function recordToGame(record: string): Game {
   return [id, plays];
 }
 
-function isPossibleGame([_, plays]: Game): boolean {
-  return !plays.some((play) =>
-    play.some(([color, quantity]) => quantity > maxBoxesLimitByColor[color])
-  );
+function getFewerNumberOfBoxesByColor([_, plays]: Game): Record<
+  BoxColor,
+  number
+> {
+  const fewerNumberOfBoxesByColor = {
+    red: 1,
+    green: 1,
+    blue: 1,
+  };
+
+  return plays.reduce((acc, play) => {
+    for (let [color, quantity] of play) {
+      acc[color] = quantity > acc[color] ? quantity : acc[color];
+    }
+
+    return acc;
+  }, fewerNumberOfBoxesByColor);
+}
+
+function getPower({ green, red, blue }: Record<BoxColor, number>): number {
+  return red * green * blue;
+}
+
+function sum(sum: number, num: number) {
+  return sum + num;
 }
 
 export function cubeConundrum(records: string[]): number {
   return records
     .map(recordToGame)
-    .filter(isPossibleGame)
-    .map(([id]) => id)
-    .reduce((sum, num) => sum + num, 0);
+    .map(getFewerNumberOfBoxesByColor)
+    .map(getPower)
+    .reduce(sum);
 }
 
 export const input = extractInput("02-input.txt");
