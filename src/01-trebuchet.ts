@@ -43,6 +43,13 @@ import { extractInput } from "./util/extract-input";
 * Your puzzle answer was 52834.
 */
 
+export function trebuchet(calibrationDocument: string[]): number {
+  return calibrationDocument
+    .map(matchCalibrationDigits)
+    .map(extractCalibrationValue)
+    .reduce(sum, 0);
+}
+
 const numbersDictionary: Record<string, string> = {
   one: "1",
   two: "2",
@@ -72,13 +79,6 @@ function extractCalibrationValue(digits: string[]) {
 
 function sum(sum: number, el: number) {
   return sum + el;
-}
-
-export function trebuchet(calibrationDocument: string[]): number {
-  return calibrationDocument
-    .map(matchCalibrationDigits)
-    .map(extractCalibrationValue)
-    .reduce(sum, 0);
 }
 
 export const input = extractInput("01-input.txt");

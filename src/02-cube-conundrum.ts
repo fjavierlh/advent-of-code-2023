@@ -50,6 +50,15 @@ import { extractInput } from "./util/extract-input";
  * For each game, find the minimum set of cubes that must have been present. What is the sum of the power of these sets?
  * Your puzzle answer was 70924.
  */
+
+export function cubeConundrum(records: string[]): number {
+  return records
+    .map(recordToGame)
+    .map(getFewestNumberOfCubesByColor)
+    .map(getPowerOfCubeSet)
+    .reduce(sum);
+}
+
 type CubeColor = "red" | "green" | "blue";
 type Play = Array<[CubeColor, number]>;
 type Game = [number, Array<Play>];
@@ -102,14 +111,6 @@ function getPowerOfCubeSet({
 
 function sum(sum: number, num: number) {
   return sum + num;
-}
-
-export function cubeConundrum(records: string[]): number {
-  return records
-    .map(recordToGame)
-    .map(getFewestNumberOfCubesByColor)
-    .map(getPowerOfCubeSet)
-    .reduce(sum);
 }
 
 export const input = extractInput("02-input.txt");
