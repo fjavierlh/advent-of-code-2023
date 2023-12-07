@@ -73,7 +73,7 @@ function recordToGame(record: string): Game {
   return [id, plays];
 }
 
-function getFewerNumberOfCubesByColor([_, plays]: Game): Record<
+function getFewestNumberOfCubesByColor([_, plays]: Game): Record<
   CubeColor,
   number
 > {
@@ -107,7 +107,7 @@ function sum(sum: number, num: number) {
 export function cubeConundrum(records: string[]): number {
   return records
     .map(recordToGame)
-    .map(getFewerNumberOfCubesByColor)
+    .map(getFewestNumberOfCubesByColor)
     .map(getPowerOfCubeSet)
     .reduce(sum);
 }
