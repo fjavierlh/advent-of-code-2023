@@ -1,6 +1,6 @@
 import { trebuchet, input } from "./01-trebuchet";
 
-describe("01. Trebuchet?", () => {
+describe("Day 1:  Trebuchet?", () => {
   it("should return the sum of the coordinates when calibration codes has two or more numbers", () => {
     const expected = 100;
     const result = trebuchet(["5psdfsa30", "ewr2dew3245", "qe2owerw5"]);

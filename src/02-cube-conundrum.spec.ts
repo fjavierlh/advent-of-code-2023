@@ -1,6 +1,6 @@
 import { cubeConundrum, input } from "./02-cube-conundrum";
 
-describe("02. Cube Conundrum", () => {
+describe("Day 3:  Cube Conundrum", () => {
   {
     it("should return sum of all ID's according with given small input", () => {
       const expected = 2286;
