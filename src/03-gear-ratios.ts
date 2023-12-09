@@ -33,27 +33,30 @@ import { extractInput } from "./util/extract-input";
 
 export function gearRatios(engine: string[]): number {
   const digitsMatcher = /\d{1,}/gi;
-  const symbolsMatcher = /[^\.\d]/gi;
+  const symbolsMatcher = /[^\.\d{1,}]/gi;
 
-  const matchedDigits = engine.map((i) => [...i.matchAll(digitsMatcher)]);
-  const matchedSymbols = engine.map((i) => [...i.matchAll(symbolsMatcher)]);
+  const matchedDigits = engine.map((line) => [...line.matchAll(digitsMatcher)]);
+  const matchedSymbols = engine.map((line) => [  ...line.matchAll(symbolsMatcher),
+]);
 
-  const numbersAdjacentToSymbol = matchedDigits.reduce<string[]>(
+  const digitsAdjacentToSymbol = matchedDigits.reduce<string[]>(
     (acc, foundDigits, matchedDigitsIndex) => {
       if (foundDigits.length === 0) return acc;
 
       for (const { 0: digit, index: digitIndex, input } of foundDigits) {
+        const defaultCharValue = ".";
         const [prevChar, nextChar] = [
-          input[digitIndex - 1],
-          input[digitIndex + digit.length],
+          input[digitIndex - 1] || defaultCharValue,
+          input[digitIndex + digit.length] || defaultCharValue,
         ];
 
-        const hasHorizonzalAdjacentSymbol = [prevChar, nextChar].some((char) =>
-          char?.match(symbolsMatcher)
+        const hasAdjacentSymbolInSorroundingChars = [prevChar, nextChar].some(
+          (char) => char.match(symbolsMatcher)
         );
 
-        if (hasHorizonzalAdjacentSymbol) {
+        if (hasAdjacentSymbolInSorroundingChars) {
           acc.push(digit);
+          continue;
         }
 
         const [prevLineSymbols = [], nextLineSymbols = []] = [
@@ -61,7 +64,7 @@ export function gearRatios(engine: string[]): number {
           matchedSymbols[matchedDigitsIndex + 1],
         ];
 
-        const hasVerticalAdjacentSymbol = [
+        const hasAdjacentSymbolInSorroundingLines = [
           prevLineSymbols,
           nextLineSymbols,
         ].some((symbols) => {
@@ -74,11 +77,9 @@ export function gearRatios(engine: string[]): number {
 
             if (symbolIndexIsInDigitIndexRange) return true;
           }
-
-          return false;
         });
 
-        if (hasVerticalAdjacentSymbol) {
+        if (hasAdjacentSymbolInSorroundingLines) {
           acc.push(digit);
         }
       }
@@ -88,7 +89,7 @@ export function gearRatios(engine: string[]): number {
     []
   );
 
-  return numbersAdjacentToSymbol.reduce((sum, num) => sum + +num, 0);
+  return digitsAdjacentToSymbol.reduce((sum, num) => sum + +num, 0);
 }
 
 export const input = extractInput("03-input.txt");
