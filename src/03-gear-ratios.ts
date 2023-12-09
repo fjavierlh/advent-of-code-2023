@@ -57,59 +57,55 @@ import { extractInput } from "./util/extract-input";
  * In this schematic, there are two gears. The first is in the top left; it has part numbers 467 and 35, so its gear ratio is 16345. The second gear is in the lower right; its gear ratio is 451490. (The * adjacent to 617 is not a gear because it is only adjacent to one part number.) Adding up all of the gear ratios produces 467835.
  * 
  * What is the sum of all of the gear ratios in your engine schematic?
+ * Your puzzle answer was 87605697.
  */
 
 export function gearRatios(engine: string[]): number {
   const digitsMatcher = /\d{1,}/gi;
-  const symbolsMatcher = /[^\.\d{1,}]/gi;
+  const symbolsMatcher = /\*/gi;
 
   const matchedDigits = engine.map((line) => [...line.matchAll(digitsMatcher)]);
-  const matchedSymbols = engine.map((line) => [  ...line.matchAll(symbolsMatcher),
-]);
+  const matchedSymbols = engine.map((line) => [
+    ...line.matchAll(symbolsMatcher),
+  ]);
 
-  const digitsAdjacentToSymbol = matchedDigits.reduce<string[]>(
-    (acc, foundDigits, matchedDigitsIndex) => {
-      if (foundDigits.length === 0) return acc;
+  const gearRatiosForAdjacentNumbersBySymbol = matchedSymbols.reduce<number[]>(
+    (acc, foundSymbols, foundSymbolsIndex) => {
+      if (foundSymbols.length === 0) return acc;
 
-      for (const { 0: digit, index: digitIndex, input } of foundDigits) {
-        const defaultCharValue = ".";
-        const [prevChar, nextChar] = [
-          input[digitIndex - 1] || defaultCharValue,
-          input[digitIndex + digit.length] || defaultCharValue,
-        ];
-
-        const hasAdjacentSymbolInSorroundingChars = [prevChar, nextChar].some(
-          (char) => char.match(symbolsMatcher)
-        );
-
-        if (hasAdjacentSymbolInSorroundingChars) {
-          acc.push(digit);
-          continue;
-        }
-
-        const [prevLineSymbols = [], nextLineSymbols = []] = [
-          matchedSymbols[matchedDigitsIndex - 1],
-          matchedSymbols[matchedDigitsIndex + 1],
-        ];
-
-        const hasAdjacentSymbolInSorroundingLines = [
-          prevLineSymbols,
-          nextLineSymbols,
-        ].some((symbols) => {
-          if (symbols.length === 0) return false;
-
-          for (const { index: symbolIndex } of symbols) {
-            const symbolIndexIsInDigitIndexRange =
-              symbolIndex >= digitIndex - 1 &&
-              symbolIndex <= digitIndex + digit.length;
-
-            if (symbolIndexIsInDigitIndexRange) return true;
-          }
+      for (const { 0: symbol, index: symbolIndex = -1 } of foundSymbols) {
+        const adjacentNumbersInSameLine = matchedDigits[
+          foundSymbolsIndex
+        ].filter(({ 0: digit, index: digitIndex = -1 }) => {
+          return (
+            digitIndex + digit.length === symbolIndex ||
+            digitIndex === symbolIndex + symbol.length
+          );
         });
 
-        if (hasAdjacentSymbolInSorroundingLines) {
-          acc.push(digit);
-        }
+        const [prevLine, nextLine] = [
+          matchedDigits[foundSymbolsIndex - 1],
+          matchedDigits[foundSymbolsIndex + 1],
+        ];
+
+        const adjacentNumbersInSorroundingLines = [
+          ...prevLine,
+          ...nextLine,
+        ].filter(({ 0: digit, index: digitIndex = -1 }) => {
+          return (
+            symbolIndex >= digitIndex - 1 &&
+            symbolIndex <= digitIndex + digit.length
+          );
+        }, []);
+
+        const adjacentNumbers = [
+          ...adjacentNumbersInSameLine,
+          ...adjacentNumbersInSorroundingLines,
+        ].map(([num]) => +num);
+
+        if (!(adjacentNumbers.length > 1)) continue;
+
+        acc.push(adjacentNumbers.reduce((acc, num) => acc * num, 1));
       }
 
       return acc;
@@ -117,7 +113,10 @@ export function gearRatios(engine: string[]): number {
     []
   );
 
-  return digitsAdjacentToSymbol.reduce((sum, num) => sum + +num, 0);
+  return gearRatiosForAdjacentNumbersBySymbol.reduce(
+    (sum, num) => sum + num,
+    0
+  );
 }
 
 export const input = extractInput("03-input.txt");

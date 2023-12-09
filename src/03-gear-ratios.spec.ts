@@ -20,7 +20,7 @@ describe("Day 3: Gear Ratios", () => {
   });
 
   it("should return the sum of all numbers adjacents to a symbol for large given input", () => {
-    const expected = 540212;
+    const expected = 87605697;
     const result = gearRatios(input);
 
     expect(result).toBe(expected);
