@@ -80,7 +80,7 @@ export function gearRatios(engine: string[]): number {
           matchedDigits[foundSymbolsIndex + 1],
         ];
 
-        const adjacentNumbers = [
+        const foundAdjacentNumbers = [
           ...prevLine,
           ...currentLine,
           ...nextLine,
@@ -97,11 +97,11 @@ export function gearRatios(engine: string[]): number {
             hasAdjacentNumbersInSorroundingLines || hasAdjacentNumbersInSameLine
           );
         });
-        
-        if (!(adjacentNumbers.length > 1)) continue;
+
+        if (foundAdjacentNumbers.length < 2) continue;
 
         acc.push(
-          adjacentNumbers
+          foundAdjacentNumbers
             .map(([num]) => +num)
             .reduce((acc, num) => acc * num, 1)
         );
