@@ -70,7 +70,7 @@ export function gearRatios(engine: string[]): number {
           for (const { index: symbolIndex } of symbols) {
             const symbolIndexIsInDigitIndexRange =
               symbolIndex >= digitIndex - 1 &&
-              symbolIndex <= digitIndex + digit.length + 1;
+              symbolIndex <= digitIndex + digit.length;
 
             if (symbolIndexIsInDigitIndexRange) return true;
           }
