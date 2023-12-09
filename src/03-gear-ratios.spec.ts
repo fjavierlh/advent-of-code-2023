@@ -1,6 +1,41 @@
 import { gearRatios, input } from "./03-gear-ratios";
 
 describe("Day 3: Gear Ratios", () => {
+  it("1", () => {
+    const expected = 1;
+    const result = gearRatios(["..1", "1.+"]);
+
+    expect(result).toBe(expected);
+  });
+
+  it("should return expected result if only one digit has adjacent symbol", () => {
+    const expected = 1;
+    const result = gearRatios(["..1", "1.+"]);
+
+    expect(result).toBe(expected);
+  });
+
+  it("should return expected result if only two digits has adjacent symbol", () => {
+    const expected = 2;
+    const result = gearRatios(["..1", "1*."]);
+
+    expect(result).toBe(expected);
+  });
+
+  it("should return expected result if only three digits has adjacent symbol", () => {
+    const expected = 3;
+    const result = gearRatios(["..1", "1*1"]);
+
+    expect(result).toBe(expected);
+  });
+
+  it("should return expected result if only four digits has adjacent symbol", () => {
+    const expected = 4;
+    const result = gearRatios(["1*1", "1*1"]);
+
+    expect(result).toBe(expected);
+  });
+
   it("should return the sum of all numbers adjacents to a symbol for small given input", () => {
     const expected = 4361;
     const result = gearRatios([
@@ -20,7 +55,7 @@ describe("Day 3: Gear Ratios", () => {
   });
 
   it("should return the sum of all numbers adjacents to a symbol for large given input", () => {
-    const expected = null;
+    const expected = 540212;
     const result = gearRatios(input);
 
     expect(result).toBe(expected);
