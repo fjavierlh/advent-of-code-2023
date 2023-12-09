@@ -1,7 +1,7 @@
 import { scratchcards, input } from "./04-scratchcards";
 
 describe("Day 4: Scratchcards", () => {
-  it("small", () => {
+  it("small input", () => {
     const expected = 13;
     const result = scratchcards([
       "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53",
@@ -15,8 +15,8 @@ describe("Day 4: Scratchcards", () => {
     expect(result).toBe(expected);
   });
 
-  it("large", () => {
-    const expected = null;
+  it("large input", () => {
+    const expected = 27454;
     const result = scratchcards(input);
 
     expect(result).toBe(expected);

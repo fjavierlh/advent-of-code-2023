@@ -36,11 +36,40 @@ import { extractInput } from "./util/extract-input";
  * Take a seat in the large pile of colorful cards. How many points are they worth in total?
  */
 
-export function scratchcards(params: string[]): number {
-  return 13;
+export function scratchcards(rawCards: string[]): number {
+  const cards: Array<[string | undefined, string[][]]> = rawCards.map(
+    (rawCard) => {
+      const [rawId, rawData] = rawCard.split(":");
+      const id = rawId.split(" ").at(-1);
+      const data = rawData
+        .split("|")
+        .map((numbers) => numbers.split(/\s/g).filter((num) => num));
+
+      return [id, data];
+    }
+  );
+
+  const points = cards.reduce((acc, [_, data]) => {
+    const [winner, cardNumbers] = data;
+    const matchedNumbers = winner.filter((num) => cardNumbers.includes(num));
+
+    if (!matchedNumbers.length) return acc;
+
+    let points = 1;
+
+    if (matchedNumbers.length === 1) return acc + points;
+
+    for (let i = 0; i <= matchedNumbers.length - 2; i++) {
+      points = points * 2;
+    }
+
+    return acc + points;
+  }, 0);
+
+  return points;
 }
 
 export const input = extractInput("04-input.txt");
 const result = scratchcards(input);
 
-console.log("\n03 *\tGear Ratios \n\tResult =>", result);
+console.log("\n03 *\tScratchcards \n\tResult =>", result);
