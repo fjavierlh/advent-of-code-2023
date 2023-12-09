@@ -30,20 +30,20 @@ import { extractInput } from "./util/extract-input";
  *
  * Of course, the actual engine schematic is much larger. What is the sum of all of the part numbers in the engine schematic?
  * Your puzzle answer was 540212.
- * 
+ *
  * --- Part Two ---
  * The engineer finds the missing part and installs it in the engine! As the engine springs to life, you jump in the closest gondola, finally ready to ascend to the water source.
- * 
+ *
  * You don't seem to be going very fast, though. Maybe something is still wrong? Fortunately, the gondola has a phone labeled "help", so you pick it up and the engineer answers.
- * 
+ *
  * Before you can explain the situation, she suggests that you look out the window. There stands the engineer, holding a phone in one hand and waving with the other. You're going so slowly that you haven't even left the station. You exit the gondola.
- * 
+ *
  * The missing part wasn't the only issue - one of the gears in the engine is wrong. A gear is any * symbol that is adjacent to exactly two part numbers. Its gear ratio is the result of multiplying those two numbers together.
- * 
+ *
  * This time, you need to find the gear ratio of every gear and add them all up so that the engineer can figure out which gear needs to be replaced.
- * 
+ *
  * Consider the same engine schematic again:
- * 
+ *
  * 467..114..
  * ...*......
  * ..35..633.
@@ -55,7 +55,7 @@ import { extractInput } from "./util/extract-input";
  * ...$.*....
  * .664.598..
  * In this schematic, there are two gears. The first is in the top left; it has part numbers 467 and 35, so its gear ratio is 16345. The second gear is in the lower right; its gear ratio is 451490. (The * adjacent to 617 is not a gear because it is only adjacent to one part number.) Adding up all of the gear ratios produces 467835.
- * 
+ *
  * What is the sum of all of the gear ratios in your engine schematic?
  * Your puzzle answer was 87605697.
  */
@@ -74,38 +74,37 @@ export function gearRatios(engine: string[]): number {
       if (foundSymbols.length === 0) return acc;
 
       for (const { 0: symbol, index: symbolIndex = -1 } of foundSymbols) {
-        const adjacentNumbersInSameLine = matchedDigits[
-          foundSymbolsIndex
-        ].filter(({ 0: digit, index: digitIndex = -1 }) => {
-          return (
-            digitIndex + digit.length === symbolIndex ||
-            digitIndex === symbolIndex + symbol.length
-          );
-        });
-
-        const [prevLine, nextLine] = [
+        const [prevLine, currentLine, nextLine] = [
           matchedDigits[foundSymbolsIndex - 1],
+          matchedDigits[foundSymbolsIndex],
           matchedDigits[foundSymbolsIndex + 1],
         ];
 
-        const adjacentNumbersInSorroundingLines = [
+        const adjacentNumbers = [
           ...prevLine,
+          ...currentLine,
           ...nextLine,
         ].filter(({ 0: digit, index: digitIndex = -1 }) => {
-          return (
+          const hasAdjacentNumbersInSorroundingLines =
             symbolIndex >= digitIndex - 1 &&
-            symbolIndex <= digitIndex + digit.length
+            symbolIndex <= digitIndex + digit.length;
+
+          const hasAdjacentNumbersInSameLine =
+            digitIndex + digit.length === symbolIndex ||
+            digitIndex === symbolIndex + symbol.length;
+
+          return (
+            hasAdjacentNumbersInSorroundingLines || hasAdjacentNumbersInSameLine
           );
-        }, []);
-
-        const adjacentNumbers = [
-          ...adjacentNumbersInSameLine,
-          ...adjacentNumbersInSorroundingLines,
-        ].map(([num]) => +num);
-
+        });
+        
         if (!(adjacentNumbers.length > 1)) continue;
 
-        acc.push(adjacentNumbers.reduce((acc, num) => acc * num, 1));
+        acc.push(
+          adjacentNumbers
+            .map(([num]) => +num)
+            .reduce((acc, num) => acc * num, 1)
+        );
       }
 
       return acc;
