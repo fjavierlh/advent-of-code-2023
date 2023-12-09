@@ -2,12 +2,10 @@ import fs from "fs";
 
 export function extractInput(filename: string): string[] {
   try {
-    const data = fs.readFileSync("src/input/" + filename, "utf8");
-
-    return data
+    return fs
+      .readFileSync("src/input/" + filename, "utf8")
       .toString()
-      .split(/\n/)
-      .map((line: string) => line.replace(/\n/, ""));
+      .split(/\n/);
   } catch (e: any) {
     throw new Error(`Error: ${e.stack}`);
   }
