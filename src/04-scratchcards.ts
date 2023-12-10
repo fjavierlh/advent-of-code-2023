@@ -35,18 +35,18 @@ import { extractInput } from "./util/extract-input";
  *
  * Take a seat in the large pile of colorful cards. How many points are they worth in total?
  * Your puzzle answer was 27454.
- * 
+ *
  * --- Part Two ---
  * Just as you're about to report your findings to the Elf, one of you realizes that the rules have actually been printed on the back of every card this whole time.
- * 
+ *
  * There's no such thing as "points". Instead, scratchcards only cause you to win more scratchcards equal to the number of winning numbers you have.
- * 
+ *
  * Specifically, you win copies of the scratchcards below the winning card equal to the number of matches. So, if card 10 were to have 5 matching numbers, you would win one copy each of cards 11, 12, 13, 14, and 15.
- * 
+ *
  * Copies of scratchcards are scored like normal scratchcards and have the same card number as the card they copied. So, if you win a copy of card 10 and it has 5 matching numbers, it would then win a copy of the same cards that the original card 10 won: cards 11, 12, 13, 14, and 15. This process repeats until none of the copies cause you to win any more cards. (Cards will never make you copy a card past the end of the table.)
- * 
+ *
  * This time, the above example goes differently:
- * 
+ *
  * Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
  * Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
  * Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
@@ -61,7 +61,7 @@ import { extractInput } from "./util/extract-input";
  * Your fourteen instances of card 5 (one original and thirteen copies) have no matching numbers and win no more cards.
  * Your one instance of card 6 (one original) has no matching numbers and wins no more cards.
  * Once all of the originals and copies have been processed, you end up with 1 instance of card 1, 2 instances of card 2, 4 instances of card 3, 8 instances of card 4, 14 instances of card 5, and 1 instance of card 6. In total, this example pile of scratchcards causes you to ultimately have 30 scratchcards!
- * 
+ *
  * Process all of the original and copied scratchcards until no more scratchcards are won. Including the original set of scratchcards, how many total scratchcards do you end up with?
  * Your puzzle answer was 6857330.
  */
@@ -69,31 +69,32 @@ import { extractInput } from "./util/extract-input";
 type Card = [string, string[][]];
 
 export function scratchcards(rawCards: string[]): number {
-  const cards: Array<Card> = rawCards.map<Card>(rawCardToCard);
+  const cards = rawCards.map(rawCardToCard);
 
   const memo: Record<string, Card[]> = {};
 
   for (let i = 0; i < cards.length; i++) {
     const currentCard = cards[i];
     const [id, data] = currentCard;
-    const [winner, playedNumbers] = data;
 
+    if (memo[id]) {
+      cards.push(...memo[id]);
+      continue;
+    } else {
+      memo[id] = [];
+    }
+
+    const [winner, playedNumbers] = data;
     const totalMatchedNumbers = winner.filter((num) =>
       playedNumbers.includes(num)
     ).length;
 
     if (totalMatchedNumbers === 0) continue;
 
-    if (memo[id]) {
-      cards.push(...memo[id]);
-      continue;
-    }
-
-    memo[id] = [];
-
     for (let j = 1; j <= totalMatchedNumbers; j++) {
       const x = cards.indexOf(currentCard);
       memo[id] = [...memo[id], cards[x + j]];
+
       cards[x + j] && cards.push(cards[x + j]);
     }
   }
