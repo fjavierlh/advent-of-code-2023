@@ -1,8 +1,28 @@
 import { scratchcards, input } from "./04-scratchcards";
 
 describe("Day 4: Scratchcards", () => {
+  it("should return expected copies", () => {
+    const expected = 1;
+    const result = scratchcards([
+      "Card 1:  1  2  3  4  5 |  5  6  7  8  9 10 11 12",
+    ]);
+
+    expect(result).toBe(expected);
+  });
+
+  it("should return expected copies", () => {
+    const expected = 6;
+    const result = scratchcards([
+      "Card 1:  1  2  3  4  5 |  5  6  7  8  9 10 11 12",
+      "Card 2:  1  2  3  4  5 |  5  6  7  8  9 10 11 12",
+      "Card 3:  1  2  3  4  5 |  6  7  8  9 10 11 12 13",
+    ]);
+
+    expect(result).toBe(expected);
+  });
+
   it("small input", () => {
-    const expected = 13;
+    const expected = 30;
     const result = scratchcards([
       "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53",
       "Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19",
@@ -16,7 +36,7 @@ describe("Day 4: Scratchcards", () => {
   });
 
   it("large input", () => {
-    const expected = 27454;
+    const expected = 6857330;
     const result = scratchcards(input);
 
     expect(result).toBe(expected);
