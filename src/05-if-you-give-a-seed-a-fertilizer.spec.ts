@@ -39,7 +39,7 @@ describe("Day 5: If You Give A Seed A Fertilizer", () => {
   });
 
   it("large input", () => {
-    const expected = null;
+    const expected = 318728750;
     const result = ifYouGiveASeedAFertilizer(input);
 
     expect(result).toBe(expected);

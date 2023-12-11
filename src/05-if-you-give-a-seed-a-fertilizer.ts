@@ -1,3 +1,5 @@
+import { extractInput } from "./util/extract-input";
+
 /**
  * --- Day 5: If You Give A Seed A Fertilizer ---
  * You take the boat and find the gardener right where you were told he would be: managing a giant "garden" that looks more to you like a farm.
@@ -93,15 +95,116 @@
  * So, the lowest location number in this example is 35.
  *
  * What is the lowest location number that corresponds to any of the initial seed numbers?
+ * Your puzzle answer was 318728750.
  */
 
-import { extractInput } from "./util/extract-input";
+interface Almanac {
+  seeds: number[];
+  "seed-to-soil": Array<number[]>;
+  "soil-to-fertilizer": Array<number[]>;
+  "fertilizer-to-water": Array<number[]>;
+  "water-to-light": Array<number[]>;
+  "light-to-temperature": Array<number[]>;
+  "temperature-to-humidity": Array<number[]>;
+  "humidity-to-location": Array<number[]>;
+}
 
-export function ifYouGiveASeedAFertilizer(params: string[]): number {
-  return 0;
+export function ifYouGiveASeedAFertilizer(rawAlmanac: string[]): number {
+  const almanac = rawAlmanacToAlamac(rawAlmanac);
+  const { seeds, ...mappers } = almanac;
+
+  const locations = seeds.reduce<number[]>((acc, seed) => {
+    const {
+      "seed-to-soil": seedToSoil,
+      "soil-to-fertilizer": soilToFertilizer,
+      "fertilizer-to-water": fertilizerToWater,
+      "water-to-light": waterToLight,
+      "light-to-temperature": lightToTemperature,
+      "temperature-to-humidity": temperatureToHumidity,
+      "humidity-to-location": humidityToLocation,
+    } = mappers;
+
+    const soil = map(seed, seedToSoil);
+    const fertilizer = map(soil, soilToFertilizer);
+    const water = map(fertilizer, fertilizerToWater);
+    const light = map(water, waterToLight);
+    const temperature = map(light, lightToTemperature);
+    const humidity = map(temperature, temperatureToHumidity);
+    const location = map(humidity, humidityToLocation);
+
+    return [...acc, location];
+  }, []);
+
+  return Math.min(...locations);
+}
+
+function map(categoryValue: number, categoryMappers: Array<number[]>) {
+  const mapper = categoryMappers.find(
+    ([_, sourceRangeStart, rangeLength]) =>
+      categoryValue >= sourceRangeStart &&
+      categoryValue <= sourceRangeStart + rangeLength
+  );
+
+  if (!mapper) return categoryValue;
+
+  const [destinationRangeStart, sourceRangeStart] = mapper;
+
+  return categoryValue - sourceRangeStart + destinationRangeStart;
+}
+
+function rawAlmanacToAlamac(rawAlmanac: string[]): Almanac {
+  const keysDictionary: Record<string, string> = {
+    "seed-to-soil": "seedToSoil",
+    "soil-to-fertilizer": "soilToFertilizer",
+    "fertilizer-to-water": "fertilizerToWater",
+    "water-to-light": "waterToLight",
+    "light-to-temperature": "lightToTemperature",
+    "temperature-to-humidity": "temperatureToHumidity",
+    "humidity-to-location": "humidityToLocation",
+  };
+
+  return rawAlmanac.reduce((almanac, line) => {
+    if (!line) return almanac;
+
+    if (line.includes("seeds:")) {
+      return {
+        ...almanac,
+        seeds:
+          line
+            .split(":")
+            .at(-1)
+            ?.split(" ")
+            .filter((seed) => seed)
+            .map(Number) || [],
+      };
+    }
+
+    if (line.includes("map:")) {
+      const [key] = line.split(" ");
+
+      return { ...almanac, [key as keyof Almanac]: [] };
+    }
+
+    const lastAddedKey = Object.keys(almanac).at(-1) as keyof Almanac;
+
+    if (almanac[lastAddedKey]) {
+      return {
+        ...almanac,
+        [lastAddedKey]: [
+          ...almanac[lastAddedKey],
+          line
+            .split(" ")
+            .filter((num) => num)
+            .map(Number),
+        ],
+      };
+    }
+
+    return almanac;
+  }, {} as Almanac);
 }
 
 export const input = extractInput("05-input.txt");
 const result = ifYouGiveASeedAFertilizer(input);
 
-console.log("\n03 *\tScratchcards \n\tResult =>", result);
+console.log("\n05 *\tIf You Give A Seed A Fertilizer \n\tResult =>", result);
