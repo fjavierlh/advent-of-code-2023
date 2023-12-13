@@ -4,7 +4,7 @@ import {
 } from "./05-if-you-give-a-seed-a-fertilizer";
 
 describe("Day 5: If You Give A Seed A Fertilizer", () => {
-  it.only("small input", () => {
+  it("small input", () => {
     const expected = 46;
     const result = ifYouGiveASeedAFertilizer([
       "seeds: 79 14 55 13",
@@ -39,7 +39,7 @@ describe("Day 5: If You Give A Seed A Fertilizer", () => {
   });
 
   it("large input", () => {
-    const expected = 318728750;
+    const expected = 37384986;
     const result = ifYouGiveASeedAFertilizer(input);
 
     expect(result).toBe(expected);

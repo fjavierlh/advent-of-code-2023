@@ -1,6 +1,4 @@
-import { s } from "vitest/dist/reporters-LLiOBu3g";
 import { extractInput } from "./util/extract-input";
-import { reverse } from "dns";
 
 /**
  * --- Day 5: If You Give A Seed A Fertilizer ---
@@ -112,6 +110,7 @@ import { reverse } from "dns";
  * In the above example, the lowest location number can be obtained from seed number 82, which corresponds to soil 84, fertilizer 84, water 84, light 77, temperature 45, humidity 46, and location 46. So, the lowest location number is 46.
  *
  * Consider all of the initial seed numbers listed in the ranges on the first line of the almanac. What is the lowest location number that corresponds to any of the initial seed numbers?
+ * Your puzzle answer was 37384986.
  */
 
 interface Almanac {
@@ -133,19 +132,18 @@ export function ifYouGiveASeedAFertilizer(rawAlmanac: string[]): number {
 
   let location = 0;
   while (true) {
-    const seed = Object.values(mappers)
+    const seed = [...Object.values(mappers)]
       .reverse()
       .reduce((acc, mapper) => map(acc, mapper), location);
 
     const isSeedInRange = seedsRanges.some(
-      ([start, length]) => seed >= start && seed <= start + length
+      ([start, length]) => seed >= start && seed <= start + length - 1
     );
 
     if (isSeedInRange) break;
 
     location += 1;
   }
-
   return location;
 }
 
@@ -161,11 +159,8 @@ function generateSeedsRanges(seeds: number[]): Array<number[]> {
 
 function map(value: number, mappers: Array<number[]>): number {
   const mapper = mappers.find(
-    ([destiny, _, length]) => value >= destiny && value <= destiny + length
+    ([destiny, _, length]) => value >= destiny && value <= destiny + length - 1
   );
-
-  console.log("mapper", mapper);
-  console.log("value", value);
 
   if (!mapper) return value;
 
@@ -217,6 +212,6 @@ function rawAlmanacToAlamac(rawAlmanac: string[]): Almanac {
 }
 
 export const input = extractInput("05-input.txt");
-// const result = ifYouGiveASeedAFertilizer(input);
+const result = ifYouGiveASeedAFertilizer(input);
 
-// console.log("\n05 *\tIf You Give A Seed A Fertilizer \n\tResult =>", result);
+console.log("\n05 *\tIf You Give A Seed A Fertilizer \n\tResult =>", result);
