@@ -1,4 +1,6 @@
+import { s } from "vitest/dist/reporters-LLiOBu3g";
 import { extractInput } from "./util/extract-input";
+import { reverse } from "dns";
 
 /**
  * --- Day 5: If You Give A Seed A Fertilizer ---
@@ -96,6 +98,20 @@ import { extractInput } from "./util/extract-input";
  *
  * What is the lowest location number that corresponds to any of the initial seed numbers?
  * Your puzzle answer was 318728750.
+ *
+ * --- Part Two ---
+ * Everyone will starve if you only plant such a small number of seeds. Re-reading the almanac, it looks like the seeds: line actually describes ranges of seed numbers.
+ *
+ * The values on the initial seeds: line come in pairs. Within each pair, the first value is the start of the range and the second value is the length of the range. So, in the first line of the example above:
+ *
+ * seeds: 79 14 55 13
+ * This line describes two ranges of seed numbers to be planted in the garden. The first range starts with seed number 79 and contains 14 values: 79, 80, ..., 91, 92. The second range starts with seed number 55 and contains 13 values: 55, 56, ..., 66, 67.
+ *
+ * Now, rather than considering four seed numbers, you need to consider a total of 27 seed numbers.
+ *
+ * In the above example, the lowest location number can be obtained from seed number 82, which corresponds to soil 84, fertilizer 84, water 84, light 77, temperature 45, humidity 46, and location 46. So, the lowest location number is 46.
+ *
+ * Consider all of the initial seed numbers listed in the ranges on the first line of the almanac. What is the lowest location number that corresponds to any of the initial seed numbers?
  */
 
 interface Almanac {
@@ -113,56 +129,52 @@ export function ifYouGiveASeedAFertilizer(rawAlmanac: string[]): number {
   const almanac = rawAlmanacToAlamac(rawAlmanac);
   const { seeds, ...mappers } = almanac;
 
-  const locations = seeds.reduce<number[]>((acc, seed) => {
-    const {
-      "seed-to-soil": seedToSoil,
-      "soil-to-fertilizer": soilToFertilizer,
-      "fertilizer-to-water": fertilizerToWater,
-      "water-to-light": waterToLight,
-      "light-to-temperature": lightToTemperature,
-      "temperature-to-humidity": temperatureToHumidity,
-      "humidity-to-location": humidityToLocation,
-    } = mappers;
+  const seedsRanges = generateSeedsRanges(seeds);
 
-    const soil = map(seed, seedToSoil);
-    const fertilizer = map(soil, soilToFertilizer);
-    const water = map(fertilizer, fertilizerToWater);
-    const light = map(water, waterToLight);
-    const temperature = map(light, lightToTemperature);
-    const humidity = map(temperature, temperatureToHumidity);
-    const location = map(humidity, humidityToLocation);
+  let location = 0;
+  while (true) {
+    const seed = Object.values(mappers)
+      .reverse()
+      .reduce((acc, mapper) => map(acc, mapper), location);
 
-    return [...acc, location];
-  }, []);
+    const isSeedInRange = seedsRanges.some(
+      ([start, length]) => seed >= start && seed <= start + length
+    );
 
-  return Math.min(...locations);
+    if (isSeedInRange) break;
+
+    location += 1;
+  }
+
+  return location;
 }
 
-function map(categoryValue: number, categoryMappers: Array<number[]>) {
-  const mapper = categoryMappers.find(
-    ([_, sourceRangeStart, rangeLength]) =>
-      categoryValue >= sourceRangeStart &&
-      categoryValue <= sourceRangeStart + rangeLength
+function generateSeedsRanges(seeds: number[]): Array<number[]> {
+  const seedsRanges = [];
+  const chunkSize = 2;
+  for (let i = 0; i < seeds.length; i += chunkSize) {
+    seedsRanges.push(seeds.slice(i, i + chunkSize));
+  }
+
+  return seedsRanges;
+}
+
+function map(value: number, mappers: Array<number[]>): number {
+  const mapper = mappers.find(
+    ([destiny, _, length]) => value >= destiny && value <= destiny + length
   );
 
-  if (!mapper) return categoryValue;
+  console.log("mapper", mapper);
+  console.log("value", value);
 
-  const [destinationRangeStart, sourceRangeStart] = mapper;
+  if (!mapper) return value;
 
-  return categoryValue - sourceRangeStart + destinationRangeStart;
+  const [destiny, source] = mapper;
+
+  return source + value - destiny;
 }
 
 function rawAlmanacToAlamac(rawAlmanac: string[]): Almanac {
-  const keysDictionary: Record<string, string> = {
-    "seed-to-soil": "seedToSoil",
-    "soil-to-fertilizer": "soilToFertilizer",
-    "fertilizer-to-water": "fertilizerToWater",
-    "water-to-light": "waterToLight",
-    "light-to-temperature": "lightToTemperature",
-    "temperature-to-humidity": "temperatureToHumidity",
-    "humidity-to-location": "humidityToLocation",
-  };
-
   return rawAlmanac.reduce((almanac, line) => {
     if (!line) return almanac;
 
@@ -205,6 +217,6 @@ function rawAlmanacToAlamac(rawAlmanac: string[]): Almanac {
 }
 
 export const input = extractInput("05-input.txt");
-const result = ifYouGiveASeedAFertilizer(input);
+// const result = ifYouGiveASeedAFertilizer(input);
 
-console.log("\n05 *\tIf You Give A Seed A Fertilizer \n\tResult =>", result);
+// console.log("\n05 *\tIf You Give A Seed A Fertilizer \n\tResult =>", result);

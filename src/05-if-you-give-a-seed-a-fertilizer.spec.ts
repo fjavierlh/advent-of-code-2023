@@ -4,8 +4,8 @@ import {
 } from "./05-if-you-give-a-seed-a-fertilizer";
 
 describe("Day 5: If You Give A Seed A Fertilizer", () => {
-  it("small input", () => {
-    const expected = 35;
+  it.only("small input", () => {
+    const expected = 46;
     const result = ifYouGiveASeedAFertilizer([
       "seeds: 79 14 55 13",
       "seed-to-soil map:",
