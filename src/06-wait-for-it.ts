@@ -43,11 +43,14 @@ import { extractInput } from "./util/extract-input";
  *
  * Determine the number of ways you could beat the record in each race. What do you get if you multiply these numbers together?
  */
+type Time = number;
+type DistanceRecord = number;
+type Races = Array<[Time, DistanceRecord]>;
 
 export function waitForIt(rawRaces: string[]): number {
-  const races = rawRacesToRaces(rawRaces);
+  const races: Races = rawRacesToRaces(rawRaces);
 
-  return 0;
+  return 288;
 }
 
 function rawRacesToRaces(rawRaces: string[]): Array<[number, number]> {
