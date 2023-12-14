@@ -43,42 +43,69 @@ import { extractInput } from "./util/extract-input";
  *
  * Determine the number of ways you could beat the record in each race. What do you get if you multiply these numbers together?
  * Your puzzle answer was 781200.
+ *
+ * --- Part Two ---
+ * As the race is about to start, you realize the piece of paper with race times and record distances you got earlier actually just has very bad kerning. There's really only one race - ignore the spaces between the numbers on each line.
+ *
+ * So, the example from before:
+ *
+ * Time:      7  15   30
+ * Distance:  9  40  200
+ * ...now instead means this:
+ *
+ * Time:      71530
+ * Distance:  940200
+ * Now, you have to figure out how many ways there are to win this single race. In this example, the race lasts for 71530 milliseconds and the record distance you need to beat is 940200 millimeters. You could hold the button anywhere from 14 to 71516 milliseconds and beat the record, a total of 71503 ways!
+ *
+ * How many ways can you beat the record in this one much longer race?
+ * Your puzzle answer was 49240091.
  */
-type Time = number;
-type DistanceRecord = number;
-type Races = Array<[Time, DistanceRecord]>;
+
+type Race = [number, number];
 
 export function waitForIt(rawRaces: string[]): number {
-  const races: Races = rawRacesToRaces(rawRaces);
-  const breakRecordByRace: number[] = [];
+  const [time, distance]: Race = rawRacesToRace(rawRaces);
 
-  for (let [raceIndex, race] of races.entries()) {
-    const [time, distance] = race;
-    for (let i = 1; i <= time; i++) {
-      if ((time - i) * i > distance) {
-        breakRecordByRace[raceIndex] = (breakRecordByRace[raceIndex] || 0) + 1;
-      }
+  let firstTimeBreakFound: number = 0;
+  for (let timePressed = 0; timePressed <= time; timePressed++) {
+    if (checkIfBreakRecord({ time, distance, timePressed })) {
+      firstTimeBreakFound = timePressed;
+      break;
     }
   }
 
-  return breakRecordByRace.reduce((a, b) => a * b, 1);
-}
-
-function rawRacesToRaces(rawRaces: string[]): Array<[number, number]> {
-  const [times, distances] = rawRaces
-    .map((raw) => raw.split(/\s+/))
-    .map((raw) => raw.filter(Number))
-    .map((raw) => raw.map(Number));
-
-  const races: Array<[number, number]> = [];
-  for (let i = 0; i <= times.length; i++) {
-    races.push([times[i], distances[i]]);
+  let lastTimeBreakFound: number = 0;
+  for (let timePressed = time; timePressed >= 0; timePressed--) {
+    if (checkIfBreakRecord({ time, distance, timePressed })) {
+      lastTimeBreakFound = timePressed;
+      break;
+    }
   }
 
-  return races;
+  return lastTimeBreakFound - firstTimeBreakFound + 1;
+}
+
+function rawRacesToRace(rawRaces: string[]): Race {
+  return rawRaces
+    .map((raw) => raw.split(/\s+/))
+    .map((raw) => raw.filter(Number))
+    .map((raw) => raw.reduce((a, b) => a + b, ""))
+    .map(Number) as Race;
+}
+
+function checkIfBreakRecord({
+  time,
+  distance,
+  timePressed,
+}: {
+  time: number;
+  distance: number;
+  timePressed: number;
+}): boolean {
+  return (time - timePressed) * timePressed > distance;
 }
 
 export const input = extractInput("06-input.txt");
 const result = waitForIt(input);
 
-console.log("\n05 *\tIf You Give A Seed A Fertilizer \n\tResult =>", result);
+console.log("\n06 *\tWait for it \n\tResult =>", result);
