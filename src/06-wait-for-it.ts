@@ -42,6 +42,7 @@ import { extractInput } from "./util/extract-input";
  * To see how much margin of error you have, determine the number of ways you can beat the record in each race; in this example, if you multiply these values together, you get 288 (4 * 8 * 9).
  *
  * Determine the number of ways you could beat the record in each race. What do you get if you multiply these numbers together?
+ * Your puzzle answer was 781200.
  */
 type Time = number;
 type DistanceRecord = number;
@@ -49,8 +50,18 @@ type Races = Array<[Time, DistanceRecord]>;
 
 export function waitForIt(rawRaces: string[]): number {
   const races: Races = rawRacesToRaces(rawRaces);
+  const breakRecordByRace: number[] = [];
 
-  return 288;
+  for (let [raceIndex, race] of races.entries()) {
+    const [time, distance] = race;
+    for (let i = 1; i <= time; i++) {
+      if ((time - i) * i > distance) {
+        breakRecordByRace[raceIndex] = (breakRecordByRace[raceIndex] || 0) + 1;
+      }
+    }
+  }
+
+  return breakRecordByRace.reduce((a, b) => a * b, 1);
 }
 
 function rawRacesToRaces(rawRaces: string[]): Array<[number, number]> {
