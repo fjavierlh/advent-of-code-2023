@@ -54,9 +54,11 @@ import { extractInput } from "./util/extract-input";
  * Find the rank of every hand in your set. What are the total winnings?
  */
 
-type Card = string;
-type Bid = number;
-type Hand = [Card, Bid];
+type Hand = {
+  hand: string;
+  bid: number;
+  score?: number;
+};
 
 const cardsOrderedByStrength = [
   "2",
@@ -74,80 +76,99 @@ const cardsOrderedByStrength = [
   "A",
 ];
 
-const scores: Record<string, number> = {
-  0: 0,
-  2: 1,
-  "2-2": 2,
-  3: 3,
-  "3-2": 4,
-  4: 5,
-  5: 6,
-};
-
 export function camelCards(rawHands: string[]): number {
   const hands = rawHandsToHands(rawHands);
+  const handsWithScore = addScoresToHands(hands);
+  const handsGroupedByScore = groupHandsByScore(handsWithScore);
+  const ranking = sortHandsByStrength(handsGroupedByScore);
 
-  const objectForScoresCalculation: Array<{
+  return calculateTotalWinnings(ranking);
+}
+
+function rawHandsToHands(rawHands: string[]): Hand[] {
+  return rawHands
+    .map((raw) => raw.split(/\s/))
+    .map(([rawCards, rawBid]) => ({ hand: rawCards, bid: +rawBid }));
+}
+
+function addScoresToHands(hands: Hand[]): Required<Hand>[] {
+  const scores: Record<string, number> = {
+    0: 0,
+    2: 1,
+    "2-2": 2,
+    3: 3,
+    "3-2": 4,
+    4: 5,
+    5: 6,
+  };
+
+  const handsWithScore: Array<{
     hand: string;
     bid: number;
     score: number;
   }> = [];
 
-  for (const [hand, bid] of hands) {
+  for (const { hand, bid } of hands) {
     const allMatchs = [];
     for (const card of cardsOrderedByStrength) {
       const matchs = [...hand.matchAll(new RegExp(card, "gi"))];
       if (matchs.length > 1) allMatchs.push(matchs.length);
     }
 
-    const matchToKey = allMatchs.sort((a, b) => b - a).join("-") || 0;
+    const matchToScoreKey = allMatchs.sort((a, b) => b - a).join("-") || 0;
 
-    objectForScoresCalculation.push({
+    handsWithScore.push({
       hand,
       bid,
-      score: scores[matchToKey],
+      score: scores[matchToScoreKey],
     });
   }
 
-  const handsGroupedByScore = objectForScoresCalculation.reduce<
-    Record<string, []>
-  >(
+  return handsWithScore;
+}
+
+function groupHandsByScore(hands: Required<Hand>[]) {
+  return hands.reduce<Record<string, Array<{ hand: string; bid: number }>>>(
     (acc, { score, ...rest }) => ({
       ...acc,
       [score]: [...(acc[score] || []), rest],
     }),
     {}
   );
+}
+
+function sortHandsByStrength(
+  handsGroupedByScore: Record<string, Hand[]>
+): Hand[] {
+  const compareByStregth = ({ hand: a }: Hand, { hand: b }: Hand) => {
+    const mapCardToStrength = (card: string) =>
+      cardsOrderedByStrength.indexOf(card);
+
+    const mappedA = [...a].map(mapCardToStrength);
+    const mappedB = [...b].map(mapCardToStrength);
+
+    for (let i = 0; i <= mappedA.length; i++) {
+      if (mappedA[i] !== mappedB[i]) return mappedA[i] - mappedB[i];
+    }
+
+    return 0;
+  };
 
   const ranking = [];
   for (const score of Object.values(handsGroupedByScore)) {
-    // TODO: the problem is in sort,
-    score.sort(({ hand: handA }, { hand: handB }) => {
-      const mappedHandA = [...handA].map((card) =>
-        cardsOrderedByStrength.indexOf(card)
-      );
-      const mappedHandB = [...handB].map((card) =>
-        cardsOrderedByStrength.indexOf(card)
-      );
-      for (let i = 0; i <= mappedHandA.length; i++) {
-        if (mappedHandA[i] === mappedHandB[i]) continue;
-        return mappedHandA[i] - mappedHandB[i];
-      }
-    });
+    score.sort(compareByStregth);
 
     ranking.push(...score);
   }
 
+  return ranking;
+}
+
+function calculateTotalWinnings(ranking: Hand[]): number {
   return ranking.reduce((acc, { bid }, i) => acc + bid * (i + 1), 0);
 }
 
-function rawHandsToHands(rawHands: string[]): Hand[] {
-  return rawHands
-    .map((raw) => raw.split(/\s/))
-    .map(([rawCards, rawBid]) => [rawCards, +rawBid]);
-}
-
 export const input = extractInput("07-input.txt");
-// const result = camelCards(input);
+const result = camelCards(input);
 
-// console.log("\n07 *\tCamel cards \n\tResult =>", result);
+console.log("\n07 *\tCamel cards \n\tResult =>", result);
